@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin System | DevAcademy</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Fira+Code:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+
+<body>
+    <div class="cyber-grid"></div>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+
+    <nav class="navbar navbar-dark bg-transparent border-bottom border-secondary position-relative z-1 mb-4 pt-3 pb-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-5 text-white" href="#">
+                <i class="fa-solid fa-shield-halved text-cyan me-2"></i> ADMIN DASHBOARD
+            </a>
+            <div class="d-flex align-items-center">
+                <span class="text-secondary me-4 font-monospace"><i
+                        class="fa-solid fa-circle-check text-success me-1"></i> System Online</span>
+                <a href="index.html" target="_blank" class="btn btn-cyber-outline btn-sm">
+                    <i class="fa-solid fa-satellite-dish me-2"></i>Live View
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container pb-5 position-relative z-1">
+        <div class="row g-4">
+
+            <div class="col-md-5">
+                <div class="glass-panel h-100">
+                    <div class="panel-header border-bottom border-secondary mb-4 pb-3">
+                        <h5 class="fw-bold mb-0 text-cyan"><i class="fa-solid fa-folder-plus me-2"></i>1. DIRECTORY
+                            SYSTEM</h5>
+                    </div>
+
+                    <div class="input-group mb-4 cyber-input-group">
+                        <input type="text" id="cat-name" class="form-control" placeholder="Tên thư mục (VD: JS Cơ bản)">
+                        <button class="btn btn-cyber-blue fw-bold" id="btn-add-cat">THÊM</button>
+                    </div>
+
+                    <ul class="list-group list-group-flush custom-list" id="cat-list">
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-7">
+                <div class="glass-panel mb-4">
+                    <div class="panel-header border-bottom border-secondary mb-4 pb-3">
+                        <h5 class="fw-bold mb-0 text-emerald"><i class="fa-brands fa-google-drive me-2"></i>2. DATA
+                            UPLOAD (DRIVE)</h5>
+                    </div>
+
+                    <div class="cyber-form">
+                        <select class="form-select mb-3" id="cat-select">
+                            <option value="">-- Loading Directory --</option>
+                        </select>
+                        <input type="text" id="file-name" class="form-control mb-3"
+                            placeholder="Tên bài học (VD: Bài tập Buổi 1)">
+                        <input type="url" id="drive-url" class="form-control mb-4 text-emerald font-monospace"
+                            placeholder="Dán link Google Drive vào đây...">
+
+                        <button class="btn btn-cyber-green w-100 fw-bold fs-6" id="btn-add-file">
+                            <i class="fa-solid fa-cloud-arrow-up me-2"></i>ĐẨY DỮ LIỆU LÊN HỆ THỐNG
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-0 overflow-hidden">
+                    <div class="table-responsive">
+                        <table class="table table-hover cyber-table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4">Tên Bài</th>
+                                    <th>Link Nguồn (Drive)</th>
+                                    <th class="text-end pe-4">Xóa</th>
+                                </tr>
+                            </thead>
+                            <tbody id="file-list">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="assets/js/admin.js"></script>
+</body>
+
+</html>
