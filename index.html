@@ -78,7 +78,7 @@
             </div>
             <!-- KHU VỰC NÚT BẤM QUẢN TRỊ (Dành cho Giáo viên) -->
     <div class="d-flex justify-content-center gap-3 mt-4 mb-4 position-relative z-1">
-        <button onclick="checkAdminPassword('admin.html', 'chung123')" class="btn btn-outline-info btn-sm fw-bold px-3">
+        <button onclick="openAuthModal('admin.html', 'admin')" class="btn btn-outline-info btn-sm fw-bold px-3">
             <i class="fa-solid fa-database me-2"></i>THÊM TÀI NGUYÊN
         </button>
         <button onclick="window.location.href='cham-bai.html'" class="btn btn-outline-warning btn-sm fw-bold px-3">
@@ -151,16 +151,75 @@
     </div>
     <script type="module" src="assets/js/main.js"></script>
 <script>
-        // HÀM KIỂM TRA MẬT KHẨU TRANG ADMIN
-        function checkAdminPassword(url, correctPass) {
-            let pass = prompt("HỆ THỐNG QUẢN TRỊ 🔒\nVui lòng nhập mã bảo mật để truy cập:");
-            if (pass === correctPass) {
-                window.location.href = url; // Nhập đúng -> Sang trang
-            } else if (pass !== null && pass !== "") {
-                alert("❌ Mã bảo mật không chính xác! Yêu cầu truy cập bị từ chối.");
-            }
+        // ==========================================
+        // TRUNG TÂM QUẢN LÝ MẬT KHẨU
+        // ==========================================
+        const SYSTEM_PASSWORDS = {
+            admin: "chung123" // Đổi mật khẩu Admin tại đây
+        };
+
+        // ==========================================
+        // XỬ LÝ GIAO DIỆN CỬA SỔ ĐĂNG NHẬP
+        // ==========================================
+        const authModal = document.getElementById('auth-modal');
+        const pinInput = document.getElementById('admin-pin-input');
+        const authError = document.getElementById('auth-error');
+        let currentTargetUrl = '';
+        let currentRequiredPass = '';
+
+        // Hàm mở cửa sổ
+        function openAuthModal(url, passType) {
+            currentTargetUrl = url;
+            currentRequiredPass = SYSTEM_PASSWORDS[passType];
+            
+            authModal.classList.remove('d-none');
+            pinInput.value = '';
+            authError.classList.add('d-none');
+            pinInput.focus();
         }
+
+        // Nút Hủy Bỏ
+        document.getElementById('btn-close-auth').onclick = () => {
+            authModal.classList.add('d-none');
+        };
+
+        // Nút Truy Cập (Kiểm tra mật khẩu)
+        document.getElementById('btn-confirm-auth').onclick = () => {
+            if (pinInput.value === currentRequiredPass) {
+                window.location.href = currentTargetUrl; // Đúng -> Sang trang
+            } else {
+                authError.classList.remove('d-none'); // Sai -> Báo lỗi
+                pinInput.value = '';
+                pinInput.focus();
+            }
+        };
+
+        // Cho phép ấn phím Enter thay vì phải bấm chuột
+        pinInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                document.getElementById('btn-confirm-auth').click();
+            }
+        });
     </script>
+<!-- CYBER AUTH MODAL (Bảng đăng nhập Admin) -->
+    <div id="auth-modal" class="cyber-modal d-none">
+        <div class="cyber-modal-content glass-panel" style="max-width: 400px; text-align: center;">
+            <div class="mb-3">
+                <i class="fa-solid fa-shield-halved fs-1 text-info mb-3"></i>
+                <h4 class="fw-bold text-cyan">HỆ THỐNG QUẢN TRỊ</h4>
+                <p class="text-secondary small">Vui lòng nhập khóa an ninh để truy cập</p>
+            </div>
+            <div class="mb-4">
+                <input type="password" id="admin-pin-input" class="form-control cyber-input text-center fs-4 letter-spacing-2" placeholder="••••••">
+                <p id="auth-error" class="text-danger mt-2 mb-0 d-none"><small><i class="fa-solid fa-circle-exclamation me-1"></i>Sai mật khẩu. Quyền truy cập bị từ chối!</small></p>
+            </div>
+            <div class="d-flex gap-2">
+                <button id="btn-close-auth" class="btn btn-outline-danger w-50 fw-bold">HỦY BỎ</button>
+                <button id="btn-confirm-auth" class="btn btn-cyber w-50 fw-bold">TRUY CẬP</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
