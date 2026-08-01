@@ -218,3 +218,12 @@ if (submitForm) {
         }
     };
 }
+// ==========================================
+// TẢI MẬT KHẨU ĐỘNG TỪ FIREBASE CHO TRANG CHỦ
+// ==========================================
+window.systemPasswords = { admin: "chung123", teacher: "123456" }; // Thông số an toàn
+(async function fetchPasswords() {
+    const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+    const snap = await getDoc(doc(db, "settings", "passwords"));
+    if(snap.exists()) window.systemPasswords = snap.data();
+})();
