@@ -94,6 +94,53 @@
 </body>
 </html>
 
+<!-- BẢNG NỘP BÀI (CYBER MODAL) -->
+    <div id="submit-modal" class="cyber-modal d-none">
+        <div class="cyber-modal-content glass-panel">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-3">
+                <h4 class="fw-bold text-cyan mb-0"><i class="fa-solid fa-satellite-dish me-2"></i>TRẠM NỘP BÀI</h4>
+                <button id="btn-close-modal" class="btn text-danger fs-4 p-0"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form id="submit-form">
+                <input type="hidden" id="submit-lesson-name">
+                
+                <div class="mb-4">
+                    <label class="form-label text-cyan fw-bold">1. Định danh (Họ và Tên)</label>
+                    <input type="text" id="student-name" class="form-control cyber-input" required placeholder="Nhập tên của bạn...">
+                </div>
+
+                <label class="form-label text-emerald fw-bold mb-2">2. Trắc nghiệm (10 Câu)</label>
+                <div class="row row-cols-5 g-2 mb-4 text-center">
+                    <!-- Tạo tự động 10 ô nhập -->
+                    <div class="col"><label class="text-secondary small">Câu 1</label><input type="text" id="q1" class="form-control cyber-input text-center text-uppercase fs-5 fw-bold" maxlength="1"></div>
+                    <div class="col"><label class="text-secondary small">Câu 2</label><input type="text" id="q2" class="form-control cyber-input text-center text-uppercase fs-5 fw-bold" maxlength="1"></div>
+                    <div class="col"><label class="text-secondary small">Câu 3</label><input type="text" id="q3" class="form-control cyber-input text-center text-uppercase fs-5 fw-bold" maxlength="1"></div>
+                    <div class="col"><label class="text-secondary small">Câu 4</label><input type="text" id="q4" class="form-control cyber-input text-center text-uppercase fs-5 fw-bold" maxlength="1"></div>
+                    <div class="col"><label class="text-secondary small">Câu 5</label><input type="text" id="q5" class="form-control cyber-input text-center text-uppercase fs-5 fw-bold" maxlength="1"></div>
+                    <div class="col"><label class="text-secondary small">Câu 6</label><input type="text" id="q6" class="form-control cyber-input text-center text-uppercase fs-5 fw-bold" maxlength="1"></div>
+                    <div class="col"><label class="text-secondary small">Câu 7</label><input type="text" id="q7" class="form-control cyber-input text-center text-uppercase fs-5 fw-bold" maxlength="1"></div>
+                    <div class="col"><label class="text-secondary small">Câu 8</label><input type="text" id="q8" class="form-control cyber-input text-center text-uppercase fs-5 fw-bold" maxlength="1"></div>
+                    <div class="col"><label class="text-secondary small">Câu 9</label><input type="text" id="q9" class="form-control cyber-input text-center text-uppercase fs-5 fw-bold" maxlength="1"></div>
+                    <div class="col"><label class="text-secondary small">Câu 10</label><input type="text" id="q10" class="form-control cyber-input text-center text-uppercase fs-5 fw-bold" maxlength="1"></div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-cyan fw-bold">3. Tự Luận</label>
+                    <textarea id="essay-text" class="form-control cyber-input" rows="4" placeholder="Viết câu trả lời tự luận vào đây..."></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-purple fw-bold">4. Đính kèm File (Nếu có)</label>
+                    <input type="file" id="upload-file" class="form-control cyber-input">
+                </div>
+
+                <button type="submit" id="btn-submit-form" class="btn btn-cyber-green w-100 fw-bold fs-5 py-3">
+                    <i class="fa-solid fa-paper-plane me-2"></i>TRUYỀN DỮ LIỆU
+                </button>
+            </form>
+        </div>
+    </div>
     <script type="module" src="assets/js/main.js"></script>
 </body>
 
