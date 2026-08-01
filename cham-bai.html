@@ -111,7 +111,8 @@
                 <label class="text-purple small fw-bold mb-1"><i class="fa-solid fa-magnifying-glass me-1"></i>Tìm theo Tên Học Sinh</label>
                 <input type="text" id="filter-name" class="form-control cyber-input" placeholder="Nhập tên học sinh...">
             </div>
-            <button id="btn-refresh" class="btn btn-cyber-outline"><i class="fa-solid fa-rotate-right me-2"></i>LÀM MỚI</button>
+            
+            <button id="btn-refresh" class="btn btn-outline-info fw-bold text-white"><i class="fa-solid fa-rotate-right me-2"></i>LÀM MỚI</button>
         </div>
 
         <!-- Bảng Dữ Liệu -->
@@ -244,19 +245,19 @@
                 const hasFile = row[5] && row[5].startsWith('http');
 
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="px-4 text-muted small">${timeStr}</td>
+               tr.innerHTML = `
+                    <td class="px-4 text-light">${timeStr}</td>
                     <td class="px-4 fw-bold text-white">${row[1] || 'Ẩn danh'}</td>
                     <td class="px-4 text-cyan">${row[2] || 'Không xác định'}</td>
                     
                     <td class="px-4 text-center">
-                        ${hasQuiz ? `<button class="btn btn-sm btn-outline-info btn-view-quiz" data-idx="${index}">Xem đáp án</button>` : '<span class="text-secondary small">Không có</span>'}
+                        ${hasQuiz ? `<button class="btn btn-sm btn-outline-info btn-view-quiz" data-idx="${index}">Xem đáp án</button>` : '<span class="text-light opacity-75">Không có</span>'}
                     </td>
                     <td class="px-4 text-center">
-                        ${hasEssay ? `<button class="btn btn-sm btn-outline-warning btn-view-essay" data-idx="${index}">Xem bài</button>` : '<span class="text-secondary small">Không có</span>'}
+                        ${hasEssay ? `<button class="btn btn-sm btn-outline-warning btn-view-essay" data-idx="${index}">Xem bài</button>` : '<span class="text-light opacity-75">Không có</span>'}
                     </td>
                     <td class="px-4 text-center">
-                        ${hasFile ? `<a href="${row[5]}" target="_blank" class="btn btn-sm btn-success"><i class="fa-solid fa-download me-1"></i> Tải file</a>` : '<span class="text-secondary small">Không có</span>'}
+                        ${hasFile ? `<a href="${row[5]}" target="_blank" class="btn btn-sm btn-success"><i class="fa-solid fa-download me-1"></i> Tải file</a>` : '<span class="text-light opacity-75">Không có</span>'}
                     </td>
                 `;
                 tbody.appendChild(tr);
