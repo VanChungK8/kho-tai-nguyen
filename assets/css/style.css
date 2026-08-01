@@ -203,4 +203,26 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+/* =========================================
+   8. CYBER MODAL (BẢNG NỘP BÀI)
+========================================= */
+.cyber-modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
+    z-index: 9999; display: flex; align-items: center; justify-content: center;
+}
+.cyber-modal-content {
+    width: 95%; max-width: 600px; max-height: 90vh; overflow-y: auto;
+    background: var(--card-bg); border: 1px solid var(--cyan);
+    box-shadow: 0 0 40px rgba(0, 240, 255, 0.1); border-radius: 16px; padding: 30px;
+}
+/* Tuỳ chỉnh thanh cuộn trong bảng */
+.cyber-modal-content::-webkit-scrollbar { width: 8px; }
+.cyber-modal-content::-webkit-scrollbar-thumb { background: var(--cyan); border-radius: 10px; }
 
+/* Ô nhập liệu */
+.cyber-input {
+    background: rgba(0, 0, 0, 0.5) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: var(--cyan) !important;
+}
+.cyber-input:focus { border-color: var(--cyan) !important; box-shadow: 0 0 15px rgba(0, 240, 255, 0.3) !important; }
