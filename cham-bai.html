@@ -161,7 +161,29 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAKuhefbFyH0UuVDBhoy6Jd0wKqEy0RyFk",
+            authDomain: "kho-tai-bb288.firebaseapp.com",
+            projectId: "kho-tai-bb288",
+            storageBucket: "kho-tai-bb288.firebasestorage.app",
+            messagingSenderId: "1093366324520",
+            appId: "1:1093366324520:web:b2d3d8d81d5ac9ccbd841d"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let TEACHER_PIN = "123456"; // Tạm thời
+        
+        // Tải mật khẩu giáo viên hiện tại từ Firebase
+        getDoc(doc(db, "settings", "passwords")).then(snap => {
+            if(snap.exists()) TEACHER_PIN = snap.data().teacher;
+        });
+
+        // --- TỪ ĐOẠN NÀY LÀ BẠN GIỮ NGUYÊN TOÀN BỘ CODE CŨ (từ const SCRIPT_URL = ...) ---
         // Mật khẩu cứng (Tạm thời)
         const TEACHER_PIN = "123456"; 
         
