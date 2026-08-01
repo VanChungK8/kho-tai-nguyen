@@ -161,7 +161,7 @@
         </div>
     </div>
 
-    <script type="module">
+   <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -176,18 +176,17 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let TEACHER_PIN = "123456"; // Tạm thời
+        // Mật khẩu mặc định dự phòng
+        let TEACHER_PIN = "123456"; 
         
-        // Tải mật khẩu giáo viên hiện tại từ Firebase
+        // Tải mật khẩu giáo viên từ Firebase (Tự động cập nhật theo cài đặt ở trang Admin)
         getDoc(doc(db, "settings", "passwords")).then(snap => {
-            if(snap.exists()) TEACHER_PIN = snap.data().teacher;
-        });
+            if(snap.exists() && snap.data().teacher) {
+                TEACHER_PIN = snap.data().teacher;
+            }
+        }).catch(err => console.log("Dùng mật khẩu mặc định"));
 
-        // --- TỪ ĐOẠN NÀY LÀ BẠN GIỮ NGUYÊN TOÀN BỘ CODE CŨ (từ const SCRIPT_URL = ...) ---
-        // Mật khẩu cứng (Tạm thời)
-        const TEACHER_PIN = "123456"; 
-        
-        // Thay bằng API URL MỚI sau khi đã thêm hàm doGet
+        // Thay bằng API URL của bạn
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyN-3x-Zca7YPEf5Lxn_de3yJU3BIUz25hC2USdfi3a1Jihve_azAR7UIWgP1MwHE11wA/exec";
         
         let allSubmissions = [];
@@ -230,8 +229,7 @@
                 const data = await response.json();
                 
                 if(data.status === "success") {
-                    // Loại bỏ dòng tiêu đề
-                    allSubmissions = data.data.slice(1).reverse(); // Reverse để bài mới nhất lên trên
+                    allSubmissions = data.data.slice(1).reverse();
                     populateFilter();
                     renderTable(allSubmissions);
                 } else {
@@ -244,7 +242,7 @@
 
         // Đổ danh sách bài học vào bộ lọc
         function populateFilter() {
-            const lessons = [...new Set(allSubmissions.map(item => item[2]))].filter(l => l); // index 2 là Tên Bài
+            const lessons = [...new Set(allSubmissions.map(item => item[2]))].filter(l => l);
             filterLesson.innerHTML = '<option value="all">-- Hiển thị tất cả bài nộp --</option>';
             lessons.forEach(lesson => {
                 filterLesson.innerHTML += `<option value="${lesson}">${lesson}</option>`;
@@ -260,14 +258,13 @@
             }
 
             dataArray.forEach((row, index) => {
-                // row: [Thời gian, Tên, Bài tập, Trắc nghiệm, Tự luận, Link]
                 const timeStr = new Date(row[0]).toLocaleString('vi-VN');
                 const hasEssay = row[4] && row[4].trim() !== '';
                 const hasQuiz = row[3] && row[3].trim() !== '';
                 const hasFile = row[5] && row[5].startsWith('http');
 
                 const tr = document.createElement('tr');
-               tr.innerHTML = `
+                tr.innerHTML = `
                     <td class="px-4 text-light">${timeStr}</td>
                     <td class="px-4 fw-bold text-white">${row[1] || 'Ẩn danh'}</td>
                     <td class="px-4 text-cyan">${row[2] || 'Không xác định'}</td>
@@ -285,7 +282,6 @@
                 tbody.appendChild(tr);
             });
 
-            // Gắn sự kiện cho các nút xem
             document.querySelectorAll('.btn-view-essay').forEach(btn => {
                 btn.onclick = (e) => {
                     const idx = e.target.dataset.idx;
@@ -297,7 +293,7 @@
             document.querySelectorAll('.btn-view-quiz').forEach(btn => {
                 btn.onclick = (e) => {
                     const idx = e.target.dataset.idx;
-                    const quizStr = dataArray[idx][3]; // "Câu 1: A | Câu 2: B | "
+                    const quizStr = dataArray[idx][3];
                     const quizArr = quizStr.split('|').filter(q => q.trim() !== '');
                     const container = document.getElementById('quiz-content-display');
                     container.innerHTML = '';
@@ -309,7 +305,6 @@
             });
         }
 
-        // Xử lý Lọc
         function applyFilters() {
             const lessonSelect = filterLesson.value;
             const nameSearch = filterName.value.toLowerCase();
@@ -326,10 +321,8 @@
         filterName.oninput = applyFilters;
         document.getElementById('btn-refresh').onclick = loadData;
 
-        // Đóng modals
         document.getElementById('btn-close-essay').onclick = () => document.getElementById('essay-modal').classList.add('d-none');
         document.getElementById('btn-close-quiz').onclick = () => document.getElementById('quiz-modal').classList.add('d-none');
-
     </script>
 </body>
 </html>
