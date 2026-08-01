@@ -162,167 +162,172 @@
     </div>
 
    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAKuhefbFyH0UuVDBhoy6Jd0wKqEy0RyFk",
-            authDomain: "kho-tai-bb288.firebaseapp.com",
-            projectId: "kho-tai-bb288",
-            storageBucket: "kho-tai-bb288.firebasestorage.app",
-            messagingSenderId: "1093366324520",
-            appId: "1:1093366324520:web:b2d3d8d81d5ac9ccbd841d"
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    const firebaseConfig = {
+        apiKey: "AIzaSyAKuhefbFyH0UuVDBhoy6Jd0wKqEy0RyFk",
+        authDomain: "kho-tai-bb288.firebaseapp.com",
+        projectId: "kho-tai-bb288",
+        storageBucket: "kho-tai-bb288.firebasestorage.app",
+        messagingSenderId: "1093366324520",
+        appId: "1:1093366324520:web:b2d3d8d81d5ac9ccbd841d"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-        // Mật khẩu mặc định dự phòng
-        let TEACHER_PIN = "123456"; 
-        
-        // Tải mật khẩu giáo viên từ Firebase (Tự động cập nhật theo cài đặt ở trang Admin)
-        getDoc(doc(db, "settings", "passwords")).then(snap => {
-            if(snap.exists() && snap.data().teacher) {
-                TEACHER_PIN = snap.data().teacher;
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyN-3x-Zca7YPEf5Lxn_de3yJU3BIUz25hC2USdfi3a1Jihve_azAR7UIWgP1MwHE11wA/exec";
+    let allSubmissions = [];
+
+    // DOM Elements
+    const loginSec = document.getElementById('login-section');
+    const dashSec = document.getElementById('dashboard-section');
+    const btnLogout = document.getElementById('btn-logout');
+    const tbody = document.getElementById('submission-table-body');
+    const filterLesson = document.getElementById('filter-lesson');
+    const filterName = document.getElementById('filter-name');
+    const loginForm = document.getElementById('login-form');
+    const loginError = document.getElementById('login-error');
+
+    // Xử lý sự kiện đăng nhập an toàn, gọi trực tiếp Firebase khi bấm xác thực
+    loginForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const inputPass = document.getElementById('teacher-password').value.trim();
+        loginError.classList.add('d-none');
+
+        let validPass = "123456"; // Mật khẩu dự phòng mặc định
+
+        try {
+            // Lấy mật khẩu mới nhất từ Firebase ngay tại thời điểm bấm nút
+            const snap = await getDoc(doc(db, "settings", "passwords"));
+            if (snap.exists() && snap.data().teacher) {
+                validPass = snap.data().teacher;
             }
-        }).catch(err => console.log("Dùng mật khẩu mặc định"));
+        } catch (err) {
+            console.log("Không thể kết nối Firebase, dùng mật khẩu mặc định.");
+        }
 
-        // Thay bằng API URL của bạn
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyN-3x-Zca7YPEf5Lxn_de3yJU3BIUz25hC2USdfi3a1Jihve_azAR7UIWgP1MwHE11wA/exec";
-        
-        let allSubmissions = [];
+        // So sánh mật khẩu người dùng nhập với mật khẩu từ hệ thống
+        if (inputPass === validPass) {
+            loginSec.classList.add('d-none');
+            dashSec.classList.remove('d-none');
+            btnLogout.classList.remove('d-none');
+            loadData();
+        } else {
+            loginError.classList.remove('d-none');
+        }
+    };
 
-        // DOM Elements
-        const loginSec = document.getElementById('login-section');
-        const dashSec = document.getElementById('dashboard-section');
-        const btnLogout = document.getElementById('btn-logout');
-        const tbody = document.getElementById('submission-table-body');
-        const filterLesson = document.getElementById('filter-lesson');
-        const filterName = document.getElementById('filter-name');
+    // Thoát tài khoản
+    btnLogout.onclick = () => {
+        loginSec.classList.remove('d-none');
+        dashSec.classList.add('d-none');
+        btnLogout.classList.add('d-none');
+        document.getElementById('teacher-password').value = '';
+    }
 
-        // Xử lý Login
-        document.getElementById('login-form').onsubmit = (e) => {
-            e.preventDefault();
-            const pass = document.getElementById('teacher-password').value;
-            if (pass === TEACHER_PIN) {
-                loginSec.classList.add('d-none');
-                dashSec.classList.remove('d-none');
-                btnLogout.classList.remove('d-none');
-                loadData();
+    // Tải dữ liệu từ Google Sheets
+    async function loadData() {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted"><div class="spinner-border text-cyan mb-2"></div><br>Đang đồng bộ dữ liệu...</td></tr>';
+        try {
+            const response = await fetch(SCRIPT_URL + "?action=getData");
+            const data = await response.json();
+            
+            if(data.status === "success") {
+                allSubmissions = data.data.slice(1).reverse();
+                populateFilter();
+                renderTable(allSubmissions);
             } else {
-                document.getElementById('login-error').classList.remove('d-none');
+                throw new Error("Lỗi tải dữ liệu");
             }
-        };
+        } catch (error) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-danger"><i class="fa-solid fa-triangle-exclamation fs-3 mb-2"></i><br>Không thể kết nối tới cơ sở dữ liệu. Vui lòng thử lại.</td></tr>';
+        }
+    }
 
-        // Thoát
-        btnLogout.onclick = () => {
-            loginSec.classList.remove('d-none');
-            dashSec.classList.add('d-none');
-            btnLogout.classList.add('d-none');
-            document.getElementById('teacher-password').value = '';
+    // Đổ danh sách bài học vào bộ lọc
+    function populateFilter() {
+        const lessons = [...new Set(allSubmissions.map(item => item[2]))].filter(l => l);
+        filterLesson.innerHTML = '<option value="all">-- Hiển thị tất cả bài nộp --</option>';
+        lessons.forEach(lesson => {
+            filterLesson.innerHTML += `<option value="${lesson}">${lesson}</option>`;
+        });
+    }
+
+    // Hiển thị bảng
+    function renderTable(dataArray) {
+        tbody.innerHTML = '';
+        if(dataArray.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Không tìm thấy bài nộp nào.</td></tr>';
+            return;
         }
 
-        // Tải dữ liệu từ Google Sheets
-        async function loadData() {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted"><div class="spinner-border text-cyan mb-2"></div><br>Đang đồng bộ dữ liệu...</td></tr>';
-            try {
-                const response = await fetch(SCRIPT_URL + "?action=getData");
-                const data = await response.json();
+        dataArray.forEach((row, index) => {
+            const timeStr = new Date(row[0]).toLocaleString('vi-VN');
+            const hasEssay = row[4] && row[4].trim() !== '';
+            const hasQuiz = row[3] && row[3].trim() !== '';
+            const hasFile = row[5] && row[5].startsWith('http');
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="px-4 text-light">${timeStr}</td>
+                <td class="px-4 fw-bold text-white">${row[1] || 'Ẩn danh'}</td>
+                <td class="px-4 text-cyan">${row[2] || 'Không xác định'}</td>
                 
-                if(data.status === "success") {
-                    allSubmissions = data.data.slice(1).reverse();
-                    populateFilter();
-                    renderTable(allSubmissions);
-                } else {
-                    throw new Error("Lỗi tải dữ liệu");
-                }
-            } catch (error) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-danger"><i class="fa-solid fa-triangle-exclamation fs-3 mb-2"></i><br>Không thể kết nối tới cơ sở dữ liệu. Vui lòng thử lại.</td></tr>';
+                <td class="px-4 text-center">
+                    ${hasQuiz ? `<button class="btn btn-sm btn-outline-info btn-view-quiz" data-idx="${index}">Xem đáp án</button>` : '<span class="text-light opacity-75">Không có</span>'}
+                </td>
+                <td class="px-4 text-center">
+                    ${hasEssay ? `<button class="btn btn-sm btn-outline-warning btn-view-essay" data-idx="${index}">Xem bài</button>` : '<span class="text-light opacity-75">Không có</span>'}
+                </td>
+                <td class="px-4 text-center">
+                    ${hasFile ? `<a href="${row[5]}" target="_blank" class="btn btn-sm btn-success"><i class="fa-solid fa-download me-1"></i> Tải file</a>` : '<span class="text-light opacity-75">Không có</span>'}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        document.querySelectorAll('.btn-view-essay').forEach(btn => {
+            btn.onclick = (e) => {
+                const idx = e.target.dataset.idx;
+                document.getElementById('essay-content-display').innerText = dataArray[idx][4];
+                document.getElementById('essay-modal').classList.remove('d-none');
             }
-        }
+        });
 
-        // Đổ danh sách bài học vào bộ lọc
-        function populateFilter() {
-            const lessons = [...new Set(allSubmissions.map(item => item[2]))].filter(l => l);
-            filterLesson.innerHTML = '<option value="all">-- Hiển thị tất cả bài nộp --</option>';
-            lessons.forEach(lesson => {
-                filterLesson.innerHTML += `<option value="${lesson}">${lesson}</option>`;
-            });
-        }
-
-        // Hiển thị bảng
-        function renderTable(dataArray) {
-            tbody.innerHTML = '';
-            if(dataArray.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Không tìm thấy bài nộp nào.</td></tr>';
-                return;
+        document.querySelectorAll('.btn-view-quiz').forEach(btn => {
+            btn.onclick = (e) => {
+                const idx = e.target.dataset.idx;
+                const quizStr = dataArray[idx][3];
+                const quizArr = quizStr.split('|').filter(q => q.trim() !== '');
+                const container = document.getElementById('quiz-content-display');
+                container.innerHTML = '';
+                quizArr.forEach(q => {
+                    container.innerHTML += `<div class="col"><div class="p-2 border border-secondary rounded text-center">${q.trim()}</div></div>`;
+                });
+                document.getElementById('quiz-modal').classList.remove('d-none');
             }
+        });
+    }
 
-            dataArray.forEach((row, index) => {
-                const timeStr = new Date(row[0]).toLocaleString('vi-VN');
-                const hasEssay = row[4] && row[4].trim() !== '';
-                const hasQuiz = row[3] && row[3].trim() !== '';
-                const hasFile = row[5] && row[5].startsWith('http');
+    function applyFilters() {
+        const lessonSelect = filterLesson.value;
+        const nameSearch = filterName.value.toLowerCase();
 
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="px-4 text-light">${timeStr}</td>
-                    <td class="px-4 fw-bold text-white">${row[1] || 'Ẩn danh'}</td>
-                    <td class="px-4 text-cyan">${row[2] || 'Không xác định'}</td>
-                    
-                    <td class="px-4 text-center">
-                        ${hasQuiz ? `<button class="btn btn-sm btn-outline-info btn-view-quiz" data-idx="${index}">Xem đáp án</button>` : '<span class="text-light opacity-75">Không có</span>'}
-                    </td>
-                    <td class="px-4 text-center">
-                        ${hasEssay ? `<button class="btn btn-sm btn-outline-warning btn-view-essay" data-idx="${index}">Xem bài</button>` : '<span class="text-light opacity-75">Không có</span>'}
-                    </td>
-                    <td class="px-4 text-center">
-                        ${hasFile ? `<a href="${row[5]}" target="_blank" class="btn btn-sm btn-success"><i class="fa-solid fa-download me-1"></i> Tải file</a>` : '<span class="text-light opacity-75">Không có</span>'}
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
+        const filtered = allSubmissions.filter(row => {
+            const matchLesson = (lessonSelect === 'all') || (row[2] === lessonSelect);
+            const matchName = (row[1] || '').toLowerCase().includes(nameSearch);
+            return matchLesson && matchName;
+        });
+        renderTable(filtered);
+    }
 
-            document.querySelectorAll('.btn-view-essay').forEach(btn => {
-                btn.onclick = (e) => {
-                    const idx = e.target.dataset.idx;
-                    document.getElementById('essay-content-display').innerText = dataArray[idx][4];
-                    document.getElementById('essay-modal').classList.remove('d-none');
-                }
-            });
+    filterLesson.onchange = applyFilters;
+    filterName.oninput = applyFilters;
+    document.getElementById('btn-refresh').onclick = loadData;
 
-            document.querySelectorAll('.btn-view-quiz').forEach(btn => {
-                btn.onclick = (e) => {
-                    const idx = e.target.dataset.idx;
-                    const quizStr = dataArray[idx][3];
-                    const quizArr = quizStr.split('|').filter(q => q.trim() !== '');
-                    const container = document.getElementById('quiz-content-display');
-                    container.innerHTML = '';
-                    quizArr.forEach(q => {
-                        container.innerHTML += `<div class="col"><div class="p-2 border border-secondary rounded text-center">${q.trim()}</div></div>`;
-                    });
-                    document.getElementById('quiz-modal').classList.remove('d-none');
-                }
-            });
-        }
-
-        function applyFilters() {
-            const lessonSelect = filterLesson.value;
-            const nameSearch = filterName.value.toLowerCase();
-
-            const filtered = allSubmissions.filter(row => {
-                const matchLesson = (lessonSelect === 'all') || (row[2] === lessonSelect);
-                const matchName = (row[1] || '').toLowerCase().includes(nameSearch);
-                return matchLesson && matchName;
-            });
-            renderTable(filtered);
-        }
-
-        filterLesson.onchange = applyFilters;
-        filterName.oninput = applyFilters;
-        document.getElementById('btn-refresh').onclick = loadData;
-
-        document.getElementById('btn-close-essay').onclick = () => document.getElementById('essay-modal').classList.add('d-none');
-        document.getElementById('btn-close-quiz').onclick = () => document.getElementById('quiz-modal').classList.add('d-none');
-    </script>
+    document.getElementById('btn-close-essay').onclick = () => document.getElementById('essay-modal').classList.add('d-none');
+    document.getElementById('btn-close-quiz').onclick = () => document.getElementById('quiz-modal').classList.add('d-none');
+</script>
 </body>
 </html>
